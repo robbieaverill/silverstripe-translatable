@@ -1,4 +1,4 @@
-Permission:
+SilverStripe\Security\Permission:
   cmsmain1:
     Code: CMS_ACCESS_CMSMain
   cmsmain2:
@@ -7,22 +7,22 @@ Permission:
     Code: TRANSLATE_ALL
   translate_all2:
     Code: TRANSLATE_ALL
-Group:
+SilverStripe\Security\Group:
   translators_de:
     Code: translators_de
-    Permissions: =>Permission.cmsmain1,=>Permission.translate_all1
+    Permissions: =>SilverStripe\Security\Permission.cmsmain1,=>SilverStripe\Security\Permission.translate_all1
   translators_en:
     Code: translators_en
-    Permissions: =>Permission.cmsmain2,=>Permission.translate_all2
-Member:
+    Permissions: =>SilverStripe\Security\Permission.cmsmain2,=>SilverStripe\Security\Permission.translate_all2
+SilverStripe\Security\Member:
   translator_de:
     Email: translator_de@test.com
     Password: test
-    Groups: =>Group.translators_de
+    Groups: =>SilverStripe\Security\Group.translators_de
   translator_en:
     Email: translator_en@test.com
     Password: test
-    Groups: =>Group.translators_en
+    Groups: =>SilverStripe\Security\Group.translators_en
   websiteuser:
     Email: websiteuser@test.com
     Password: test
@@ -30,14 +30,14 @@ Page:
   root_en:
     URLSegment: root-en
     Locale: en_US
-SiteConfig:
+SilverStripe\SiteConfig\SiteConfig:
   en_US:
     Title: My test site
     Locale: en_US
     CanEditType: OnlyTheseUsers
-    EditorGroups: =>Group.translators_en
+    EditorGroups: =>SilverStripe\Security\Group.translators_en
   de_DE:
     Title: Meine Test Seite
     Locale: de_DE
     CanEditType: OnlyTheseUsers
-    EditorGroups: =>Group.translators_de
+    EditorGroups: =>SilverStripe\Security\Group.translators_de

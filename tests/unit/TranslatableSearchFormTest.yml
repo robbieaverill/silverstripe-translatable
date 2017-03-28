@@ -1,18 +1,18 @@
-SiteTree:
+SilverStripe\CMS\Model\SiteTree:
    searchformholder:
       URLSegment: searchformholder
       Title: searchformholder
    publishedPage:
       Title: publishedPage
       Content: English content
-Group:
+SilverStripe\Security\Group:
    admingroup:
       Code: admingroup
-Member:
+SilverStripe\Security\Member:
    admin:
        FirstName: Admin
-       Groups: =>Group.admingroup
-Permission:
+       Groups: =>SilverStripe\Security\Group.admingroup
+SilverStripe\Security\Permission:
    admincode:
       Code: ADMIN
-      Group: =>Group.admingroup
+      Group: =>SilverStripe\Security\Group.admingroup

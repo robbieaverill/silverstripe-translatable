@@ -1,0 +1,7 @@
+mappings:
+  TranslatableCMSMainExtension: SilverStripe\Translatable\Controller\TranslatableCMSMainExtension
+  TranslatableEditorToolbarExtension: SilverStripe\Translatable\Controller\TranslatableEditorToolbarExtension
+  LanguageDropdownField: SilverStripe\Translatable\Forms\LanguageDropdownField
+  Translatable: SilverStripe\Translatable\Model\Translatable
+  Translatable_Transformation: SilverStripe\Translatable\Model\Translatable\Transformation
+  MigrateTranslatableTask: SilverStripe\Translatable\Tasks\MigrateTranslatableTask

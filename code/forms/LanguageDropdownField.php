@@ -1,8 +1,18 @@
 <?php
+
+namespace SilverStripe\Translatable\Forms;
+
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Convert;
+use SilverStripe\Forms\GroupedDropdownField;
+use SilverStripe\i18n\i18n;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Translatable\Model\Translatable;
+
 /**
  * An extension to dropdown field, pre-configured to list languages.
  * The languages already used in the site will be on top.
- * 
+ *
  * @package translatable
  */
 class LanguageDropdownField extends GroupedDropdownField
@@ -10,45 +20,43 @@ class LanguageDropdownField extends GroupedDropdownField
     private static $allowed_actions = array(
         'getLocaleForObject'
     );
-    
+
     /**
      * Create a new LanguageDropdownField
      * @param string $name
      * @param string $title
      * @param array $excludeLocales List of locales that won't be included
-     * @param string $translatingClass Name of the class with translated instances 
+     * @param string $translatingClass Name of the class with translated instances
      *               where to look for used languages
-     * @param string $list Indicates the source language list. 
-     *               Can be either Common-English, Common-Native, Locale-English, Locale-Native
+     * @param string $list Indicates the source language list.
+     *               Can be either Common-English or Locale-English (default)
      */
-    public function __construct($name, $title, $excludeLocales = array(),
-        $translatingClass = 'SiteTree', $list = 'Common-English', $instance = null
+    public function __construct(
+        $name,
+        $title,
+        $excludeLocales = array(),
+        $translatingClass = SiteTree::class,
+        $list = 'Common-English',
+        $instance = null
     ) {
         $usedLocalesWithTitle = Translatable::get_existing_content_languages($translatingClass);
         $usedLocalesWithTitle = array_diff_key($usedLocalesWithTitle, $excludeLocales);
 
         if ('Common-English' == $list) {
-            $allLocalesWithTitle = i18n::get_common_languages();
-        } elseif ('Common-Native' == $list) {
-            $allLocalesWithTitle = i18n::get_common_languages(true);
-        } elseif ('Locale-English' == $list) {
-            $allLocalesWithTitle = i18n::get_common_locales();
-        } elseif ('Locale-Native' == $list) {
-            $allLocalesWithTitle = i18n::get_common_locales(true);
+            $allLocalesWithTitle = i18n::getData()->getLanguages();
         } else {
-            $allLocalesWithTitle = i18n::config()->all_locales;
+            $allLocalesWithTitle = i18n::getData()->getLocales();
         }
 
         if (isset($allLocales[Translatable::default_locale()])) {
             unset($allLocales[Translatable::default_locale()]);
         }
-        
+
         // Limit to allowed locales if defined
         // Check for canTranslate() if an $instance is given
         $allowedLocales = Translatable::get_allowed_locales();
         foreach ($allLocalesWithTitle as $locale => $localeTitle) {
-            if (
-                ($allowedLocales && !in_array($locale, $allowedLocales))
+            if (($allowedLocales && !in_array($locale, $allowedLocales))
                 || ($excludeLocales && in_array($locale, $excludeLocales))
                 || ($usedLocalesWithTitle && array_key_exists($locale, $usedLocalesWithTitle))
             ) {
@@ -69,7 +77,7 @@ class LanguageDropdownField extends GroupedDropdownField
 
         // Sort by title (array value)
         asort($allLocalesWithTitle);
-        
+
         if (count($usedLocalesWithTitle)) {
             asort($usedLocalesWithTitle);
             $source = array(
@@ -87,7 +95,7 @@ class LanguageDropdownField extends GroupedDropdownField
     {
         return 'languagedropdown dropdown';
     }
-    
+
     public function getAttributes()
     {
         return array_merge(
@@ -95,10 +103,10 @@ class LanguageDropdownField extends GroupedDropdownField
             array('data-locale-url' => $this->Link('getLocaleForObject'))
         );
     }
-    
+
     /**
      * Get the locale for an object that has the Translatable extension.
-     * 
+     *
      * @return locale
      */
     public function getLocaleForObject()
@@ -106,8 +114,8 @@ class LanguageDropdownField extends GroupedDropdownField
         $id = (int)$this->getRequest()->requestVar('id');
         $class = Convert::raw2sql($this->getRequest()->requestVar('class'));
         $locale = Translatable::get_current_locale();
-        if ($id && $class && class_exists($class) && $class::has_extension('Translatable')) {
-            // temporarily disable locale filter so that we won't filter out the object 
+        if ($id && $class && class_exists($class) && $class::has_extension(Translatable::class)) {
+            // temporarily disable locale filter so that we won't filter out the object
             Translatable::disable_locale_filter();
             $object = DataObject::get_by_id($class, $id);
             Translatable::enable_locale_filter();

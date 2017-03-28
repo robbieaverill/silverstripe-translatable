@@ -1,5 +1,12 @@
 <?php
 
+namespace SilverStripe\Translatable\Controller;
+
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Translatable\Forms\LanguageDropdownField;
+use SilverStripe\Translatable\Model\Translatable;
+use SilverStripe\View\Requirements;
+
 class TranslatableEditorToolbarExtension extends DataExtension
 {
     public function updateLinkForm(&$form)

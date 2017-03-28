@@ -28,6 +28,16 @@
 			"dev-master": "3.x-dev"
 		}
 	},
+    "autoload": {
+        "psr-4": {
+            "SilverStripe\\Translatable\\": "code/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SilverStripe\\Translatable\\Tests\\": "tests/unit/"
+        }
+    },
 	"support": {
 		"issues": "https://github.com/silverstripe/silverstripe-translatable/issues?state=open"
 	},
