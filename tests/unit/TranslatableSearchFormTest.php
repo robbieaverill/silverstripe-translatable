@@ -1,34 +1,47 @@
 <?php
+
+namespace SilverStripe\Translatable\Tests;
+
+use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\CMS\Search\ContentControllerSearchExtension;
+use SilverStripe\CMS\Search\SearchForm;
+use SilverStripe\Dev\FunctionalTest;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\Search\FulltextSearchable;
+use SilverStripe\Security\Member;
+use SilverStripe\Translatable\Model\Translatable;
+
 /**
  * @package translatable
  */
 class TranslatableSearchFormTest extends FunctionalTest
 {
     protected static $fixture_file = 'translatable/tests/unit/TranslatableSearchFormTest.yml';
-    
+
     protected $mockController;
 
     protected $requiredExtensions = array(
-        'SiteTree' => array(
-            'Translatable',
-            "FulltextSearchable('Title,MenuTitle,Content,MetaDescription')",
+        SiteTree::class => array(
+            Translatable::class,
+            FulltextSearchable::class . "('Title,MenuTitle,Content,MetaDescription')",
         ),
-        "File" => array(
-            "FulltextSearchable('Filename,Title,Content')",
-        ),
-        "ContentController" => array(
-            "ContentControllerSearchExtension",
+        ContentController::class => array(
+            ContentControllerSearchExtension::class,
         ),
     );
 
+    /**
+     * @see {@link ZZZSearchFormTest}
+     */
     public function waitUntilIndexingFinished()
     {
-        $db = DB::getConn();
+        $db = DB::get_conn();
         if (method_exists($db, 'waitUntilIndexingFinished')) {
-            DB::getConn()->waitUntilIndexingFinished();
+            DB::get_conn()->waitUntilIndexingFinished();
         }
     }
-    
+
     public function setUpOnce()
     {
         // HACK Postgres doesn't refresh TSearch indexes when the schema changes after CREATE TABLE
@@ -39,35 +52,35 @@ class TranslatableSearchFormTest extends FunctionalTest
         $this->resetDBSchema(true);
         parent::setUpOnce();
     }
-    
+
     public function setUp()
     {
         parent::setUp();
-        
-        $holderPage = $this->objFromFixture('SiteTree', 'searchformholder');
+
+        $holderPage = $this->objFromFixture(SiteTree::class, 'searchformholder');
         $this->mockController = new ContentController($holderPage);
-        
+
         // whenever a translation is created, canTranslate() is checked
-        $admin = $this->objFromFixture('Member', 'admin');
+        $admin = $this->objFromFixture(Member::class, 'admin');
         $admin->logIn();
 
-        $this->waitUntilIndexingFinished();
+        // $this->waitUntilIndexingFinished();
     }
-    
-    
-        
+
+
+
     public function testPublishedPagesMatchedByTitleInDefaultLanguage()
     {
-        $sf = new SearchForm($this->mockController, 'SearchForm');
+        $sf = new SearchForm($this->mockController, SearchForm::class);
 
-        $publishedPage = $this->objFromFixture('SiteTree', 'publishedPage');
-        $publishedPage->publish('Stage', 'Live');
+        $publishedPage = $this->objFromFixture(SiteTree::class, 'publishedPage');
+        $publishedPage->copyVersionToStage('Stage', 'Live');
         $translatedPublishedPage = $publishedPage->createTranslation('de_DE');
         $translatedPublishedPage->Title = 'translatedPublishedPage';
         $translatedPublishedPage->Content = 'German content';
         $translatedPublishedPage->write();
-        $translatedPublishedPage->publish('Stage', 'Live');
-        
+        $translatedPublishedPage->copyVersionToStage('Stage', 'Live');
+
         $this->waitUntilIndexingFinished();
 
         // Translatable::set_current_locale() can't be used because the context
@@ -75,7 +88,7 @@ class TranslatableSearchFormTest extends FunctionalTest
         // through a pseudo GET variable in getResults()
 
         $lang = 'en_US';
-        $results = $sf->getResults(null, array('Search'=>'content', 'searchlocale'=>$lang));
+        $results = $sf->getResults(null, array('Search' => 'content', 'searchlocale' => $lang));
         $this->assertContains(
             $publishedPage->ID,
             $results->column('ID'),
@@ -86,9 +99,9 @@ class TranslatableSearchFormTest extends FunctionalTest
             $results->column('ID'),
             'Published pages in another language are not found when searching in default language'
         );
-        
+
         $lang = 'de_DE';
-        $results = $sf->getResults(null, array('Search'=>'content', 'searchlocale'=>$lang));
+        $results = $sf->getResults(null, array('Search' => 'content', 'searchlocale' => $lang));
         $this->assertNotContains(
             $publishedPage->ID,
             $results->column('ID'),

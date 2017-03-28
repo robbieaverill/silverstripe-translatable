@@ -1,4 +1,28 @@
 <?php
+
+namespace SilverStripe\Translatable\Controller;
+
+use SilverStripe\CMS\Controllers\CMSPagesController;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Control\Controller;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Extension;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\HTMLEditor\HTMLEditorConfig;
+use SilverStripe\i18n\i18n;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\SecurityToken;
+use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Translatable\Forms\LanguageDropdownField;
+use SilverStripe\Translatable\Model\Translatable;
+use SilverStripe\View\Requirements;
+
 /**
  * @package translatable
  */
@@ -11,7 +35,7 @@ class TranslatableCMSMainExtension extends Extension
     public function init()
     {
         $req = $this->owner->getRequest();
-        
+
         // Ignore being called on LeftAndMain base class,
         // which is the case when requests are first routed through AdminRootController
         // as an intermediary rather than the endpoint controller
@@ -33,8 +57,8 @@ class TranslatableCMSMainExtension extends Extension
             }
         } else {
             $this->owner->Locale = Translatable::default_locale();
-            if ($this->owner->class == 'CMSPagesController') {
-                // the CMSPagesController always needs to have the locale set, 
+            if ($this->owner->class == CMSPagesController::class) {
+                // the CMSPagesController always needs to have the locale set,
                 // otherwise page editing will cause an extra
                 // ajax request which looks weird due to multiple "loading"-flashes
                 $getVars = $req->getVars();
@@ -55,11 +79,10 @@ class TranslatableCMSMainExtension extends Extension
         // If a locale is set, it needs to match to the current record
         $requestLocale = $req->requestVar("Locale");
         $page = $this->owner->currentPage();
-        if (
-            $req->httpMethod() == 'GET' // leave form submissions alone
+        if ($req->httpMethod() == 'GET' // leave form submissions alone
             && $requestLocale
             && $page
-            && $page->hasExtension('Translatable')
+            && $page->hasExtension(Translatable::class)
             && $page->Locale != $requestLocale
             && $req->latestParam('Action') != 'EditorToolbar'
         ) {
@@ -71,15 +94,15 @@ class TranslatableCMSMainExtension extends Extension
                     $transPage->ID
                     // ?locale will automatically be added
                 ));
-            } elseif ($this->owner->class != 'CMSPagesController') {
+            } elseif ($this->owner->class != CMSPagesController::class) {
                 // If the record is not translated, redirect to pages overview
                 return $this->owner->redirect(Controller::join_links(
-                    singleton('CMSPagesController')->Link(),
+                    singleton(CMSPagesController::class)->Link(),
                     '?Locale=' . $requestLocale
                 ));
             }
         }
-        
+
         // collect languages for TinyMCE spellchecker plugin.
         // see http://wiki.moxiecode.com/index.php/TinyMCE:Plugins/spellchecker
         $langName = i18n::get_locale_name($this->owner->Locale);
@@ -91,20 +114,20 @@ class TranslatableCMSMainExtension extends Extension
         Requirements::javascript('translatable/javascript/CMSMain.Translatable.js');
         Requirements::css('translatable/css/CMSMain.Translatable.css');
     }
-    
+
     public function updateEditForm(&$form)
     {
-        if ($form->getName() == 'RootForm' && SiteConfig::has_extension("Translatable")) {
+        if ($form->getName() == 'RootForm' && SiteConfig::has_extension(Translatable::class)) {
             $siteConfig = SiteConfig::current_site_config();
-            $form->Fields()->push(new HiddenField('Locale', '', $siteConfig->Locale));
+            $form->Fields()->push(HiddenField::create('Locale', '', $siteConfig->Locale));
         }
     }
-    
+
     public function updatePageOptions(&$fields)
     {
-        $fields->push(new HiddenField("Locale", 'Locale', Translatable::get_current_locale()));
+        $fields->push(HiddenField::create("Locale", 'Locale', Translatable::get_current_locale()));
     }
-    
+
     /**
      * Create a new translation from an existing item, switch to this language and reload the tree.
      */
@@ -122,15 +145,15 @@ class TranslatableCMSMainExtension extends Extension
         if (!$record) {
             return $this->owner->httpError(404);
         }
-        
+
         $this->owner->Locale = $langCode;
         Translatable::set_current_locale($langCode);
-        
+
         // Create a new record in the database - this is different
         // to the usual "create page" pattern of storing the record
         // in-memory until a "save" is performed by the user, mainly
         // to simplify things a bit.
-        // @todo Allow in-memory creation of translations that don't 
+        // @todo Allow in-memory creation of translations that don't
         // persist in the database before the user requests it
         $translatedRecord = $record->createTranslation($langCode);
 
@@ -141,7 +164,7 @@ class TranslatableCMSMainExtension extends Extension
 
         // set the X-Pjax header to Content, so that the whole admin panel will be refreshed
         $this->owner->getResponse()->addHeader('X-Pjax', 'Content');
-        
+
         return $this->owner->redirect($url);
     }
 
@@ -174,10 +197,10 @@ class TranslatableCMSMainExtension extends Extension
             $link = Controller::join_links($link, '?Locale=' . $locale);
         }
     }
-    
+
     /**
      * Returns a form with all languages with languages already used appearing first.
-     * 
+     *
      * @return Form
      */
     public function LangForm()
@@ -188,20 +211,20 @@ class TranslatableCMSMainExtension extends Extension
                 'Locale',
                 _t('CMSMain.LANGUAGEDROPDOWNLABEL', 'Language'),
                 array(),
-                'SiteTree',
+                SiteTree::class,
                 'Locale-English',
-                singleton('SiteTree')
+                singleton(SiteTree::class)
             );
             $field->setValue(Translatable::get_current_locale());
         } else {
-            // user doesn't have permission to switch langs 
+            // user doesn't have permission to switch langs
             // so just show a string displaying current language
             $field = new LiteralField(
                 'Locale',
                 i18n::get_locale_name(Translatable::get_current_locale())
             );
         }
-        
+
         $form = new Form(
             $this->owner,
             'LangForm',
@@ -214,32 +237,32 @@ class TranslatableCMSMainExtension extends Extension
         );
         $form->unsetValidator();
         $form->addExtraClass('nostyle');
-        
+
         return $form;
     }
-    
+
     public function selectlang($data, $form)
     {
         return $this->owner;
     }
-    
+
     /**
      * Determine if there are more than one languages in our site tree.
-     * 
+     *
      * @return boolean
      */
     public function MultipleLanguages()
     {
-        $langs = Translatable::get_existing_content_languages('SiteTree');
+        $langs = Translatable::get_existing_content_languages(SiteTree::class);
 
         return (count($langs) > 1);
     }
-    
+
     /**
      * @return boolean
      */
     public function IsTranslatableEnabled()
     {
-        return SiteTree::has_extension('Translatable');
+        return SiteTree::has_extension(Translatable::class);
     }
 }
