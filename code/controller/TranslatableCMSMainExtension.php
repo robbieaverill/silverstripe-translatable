@@ -57,7 +57,7 @@ class TranslatableCMSMainExtension extends Extension
             }
         } else {
             $this->owner->Locale = Translatable::default_locale();
-            if ($this->owner->class == CMSPagesController::class) {
+            if ($this->owner instanceof CMSPagesController) {
                 // the CMSPagesController always needs to have the locale set,
                 // otherwise page editing will cause an extra
                 // ajax request which looks weird due to multiple "loading"-flashes
@@ -94,7 +94,7 @@ class TranslatableCMSMainExtension extends Extension
                     $transPage->ID
                     // ?locale will automatically be added
                 ));
-            } elseif ($this->owner->class != CMSPagesController::class) {
+            } elseif (!($this->owner instanceof CMSPagesController)) {
                 // If the record is not translated, redirect to pages overview
                 return $this->owner->redirect(Controller::join_links(
                     singleton(CMSPagesController::class)->Link(),

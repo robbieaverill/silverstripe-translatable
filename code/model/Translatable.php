@@ -494,7 +494,7 @@ class Translatable extends DataExtension implements PermissionProvider
     {
         $langs = array();
 
-        $baseDataClass = DataObject::getSchema()->baseDataTable($this->owner->class); //Base Class
+        $baseDataClass = DataObject::getSchema()->baseDataTable(get_class($this->owner)); //Base Class
         $translationGroupClass = $baseDataClass . "_translationgroups";
         if ($this->owner->hasExtension(Versioned::class)  && Versioned::get_stage() == "Live") {
             $baseDataClass = $baseDataClass . "_Live";
@@ -556,31 +556,6 @@ class Translatable extends DataExtension implements PermissionProvider
         }
 
         return $locales;
-    }
-
-    /**
-     * Construct a new Translatable object.
-     * @var array $translatableFields The different fields of the object that can be translated.
-     * This is currently not implemented, all fields are marked translatable (see {@link setOwner()}).
-     */
-    public function __construct($translatableFields = null)
-    {
-        parent::__construct();
-
-        // @todo Disabled selection of translatable fields - we're setting all fields as
-        // translatable in setOwner()
-        /*
-        if(!is_array($translatableFields)) {
-            $translatableFields = func_get_args();
-        }
-        $this->translatableFields = $translatableFields;
-        */
-
-        // workaround for extending a method on another decorator (Hierarchy):
-        // split the method into two calls, and overwrite the wrapper AllChildrenIncludingDeleted()
-        // Has to be executed even with Translatable disabled, as it overwrites the method with same name
-        // on Hierarchy class, and routes through to Hierarchy->doAllChildrenIncludingDeleted() instead.
-        // Caution: There's an additional method for augmentAllChildrenIncludingDeleted()
     }
 
     public function setOwner($owner, $ownerBaseClass = null)
@@ -659,7 +634,7 @@ class Translatable extends DataExtension implements PermissionProvider
             $locale = Translatable::get_current_locale();
         }
 
-        $baseTable = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseTable = DataObject::getSchema()->baseDataTable(get_class($this->owner));
         if ($locale
             // unless the filter has been temporarily disabled
             && self::locale_filter_enabled()
@@ -702,11 +677,11 @@ class Translatable extends DataExtension implements PermissionProvider
      */
     public function augmentDatabase()
     {
-        $baseDataClass = DataObject::getSchema()->baseDataClass($this->owner->class);
-        if ($this->owner->class != $baseDataClass) {
+        $baseDataClass = DataObject::getSchema()->baseDataClass(get_class($this->owner));
+        if (get_class($this->owner) != $baseDataClass) {
             return;
         }
-        $baseDataTable = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseDataTable = DataObject::getSchema()->baseDataTable(get_class($this->owner));
 
         $fields = array(
             'OriginalID' => 'Int',
@@ -734,11 +709,11 @@ class Translatable extends DataExtension implements PermissionProvider
     public function requireDefaultRecords()
     {
         // @todo This relies on the Locale attribute being on the base data class, and not any subclasses
-        $baseDataClass = DataObject::getSchema()->baseDataClass($this->owner->class);
-        if ($this->owner->class != $baseDataClass) {
+        $baseDataClass = DataObject::getSchema()->baseDataClass(get_class($this->owner));
+        if (get_class($this->owner) != $baseDataClass) {
             return;
         }
-        $baseDataTable = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseDataTable = DataObject::getSchema()->baseDataTable(get_class($this->owner));
 
         // Permissions: If a group doesn't have any specific TRANSLATE_<locale> edit rights,
         // but has CMS_ACCESS_CMSMain (general CMS access), then assign TRANSLATE_ALL permissions as a default.
@@ -777,11 +752,11 @@ class Translatable extends DataExtension implements PermissionProvider
             return;
         }
 
-        if (class_exists(SiteTree::class) && $this->owner->class == SiteTree::class) {
+        if (class_exists(SiteTree::class) && get_class($this->owner) == SiteTree::class) {
             foreach (array('Stage', 'Live') as $stage) {
                 foreach ($idsWithoutLocale as $id) {
                     $obj = Versioned::get_one_by_stage(
-                        $this->owner->class,
+                        get_class($this->owner),
                         $stage,
                         sprintf('"SiteTree"."ID" = %d', $id)
                     );
@@ -803,7 +778,7 @@ class Translatable extends DataExtension implements PermissionProvider
             }
         } else {
             foreach ($idsWithoutLocale as $id) {
-                $obj = DataObject::get_by_id($this->owner->class, $id);
+                $obj = DataObject::get_by_id(get_class($this->owner), $id);
                 if (!$obj || $obj->ObsoleteClassName) {
                     continue;
                 }
@@ -839,7 +814,7 @@ class Translatable extends DataExtension implements PermissionProvider
             return false;
         }
 
-        $baseDataClass = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseDataClass = DataObject::getSchema()->baseDataTable(get_class($this->owner));
         $existingGroupID = $this->getTranslationGroup($originalID);
 
         // Remove any existing groups if overwrite flag is set
@@ -879,7 +854,7 @@ class Translatable extends DataExtension implements PermissionProvider
             return false;
         }
 
-        $baseDataClass = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseDataClass = DataObject::getSchema()->baseDataTable(get_class($this->owner));
         return DB::query(
             sprintf(
                 'SELECT "TranslationGroupID" FROM "%s_translationgroups" WHERE "OriginalID" = %d',
@@ -897,7 +872,7 @@ class Translatable extends DataExtension implements PermissionProvider
      */
     public function removeTranslationGroup()
     {
-        $baseDataClass = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseDataClass = DataObject::getSchema()->baseDataTable(get_class($this->owner));
         DB::query(
             sprintf('DELETE FROM "%s_translationgroups" WHERE "OriginalID" = %d', $baseDataClass, $this->owner->ID)
         );
@@ -992,7 +967,7 @@ class Translatable extends DataExtension implements PermissionProvider
                 // So, we load one from the current stage and test against it
                 // This is to prevent the overhead of writing all translations when
                 // the class didn't actually change.
-                $baseDataClass = DataObject::getSchema()->baseDataClass($this->owner->class);
+                $baseDataClass = DataObject::getSchema()->baseDataClass(get_class($this->owner));
                 $currentStage = Versioned::get_stage();
                 $fresh = Versioned::get_one_by_stage(
                     $baseDataClass,
@@ -1340,7 +1315,7 @@ class Translatable extends DataExtension implements PermissionProvider
      */
     public function baseTable($stage = null)
     {
-        $baseTable = DataObject::getSchema()->baseDataTable($this->owner->class);
+        $baseTable = DataObject::getSchema()->baseDataTable(get_class($this->owner));
         return (!$stage || $stage == $this->defaultStage) ? $baseClass : $baseClass . "_$stage";
     }
 
@@ -1383,7 +1358,7 @@ class Translatable extends DataExtension implements PermissionProvider
 
         $translationGroupID = $this->getTranslationGroup();
 
-        $baseDataClass = DataObject::getSchema()->baseDataClass($this->owner->class);
+        $baseDataClass = DataObject::getSchema()->baseDataClass(get_class($this->owner));
         $baseDataTable = DataObject::getSchema()->tableName($baseDataClass);
 
         $filter = sprintf('"%s_translationgroups"."TranslationGroupID" = %d', $baseDataTable, $translationGroupID);
@@ -1456,10 +1431,10 @@ class Translatable extends DataExtension implements PermissionProvider
 
         // Work-around for population of defaults during database initialisation.
         // When the database is being setup singleton('SiteConfig') is called.
-        if (!DB::get_schema()->hasTable($this->owner->class)) {
+        if (!DB::get_schema()->hasTable(get_class($this->owner))) {
             return;
         }
-        if (!DB::get_schema()->hasField($this->owner->class, 'Locale')) {
+        if (!DB::get_schema()->hasField(get_class($this->owner), 'Locale')) {
             return;
         }
         if (DB::get_schema()->isSchemaUpdating()) {
@@ -1566,7 +1541,7 @@ class Translatable extends DataExtension implements PermissionProvider
             return $existingTranslation;
         }
 
-        $class = $this->owner->class;
+        $class = get_class($this->owner);
         $newTranslation = new $class;
 
         // copy all fields from owner (apart from ID)

@@ -3,16 +3,16 @@ Name: translatable-extensions
 ---
 SiteTree:
   extensions:
-    ['Translatable']
+    - 'Translatable'
 SiteConfig:
   extensions:
-    ['Translatable']
+    - 'Translatable'
 LeftAndMain:
-  extensions: 
-    ['TranslatableCMSMainExtension']
+  extensions:
+    - 'TranslatableCMSMainExtension'
 HtmlEditorField_Toolbar:
   extensions:
-    ['TranslatableEditorToolbarExtension']
+    - 'TranslatableEditorToolbarExtension'
 DataQuery:
   extensions:
-    ['Translatable']
+    - 'Translatable'
