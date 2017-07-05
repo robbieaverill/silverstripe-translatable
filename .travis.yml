@@ -15,10 +15,13 @@ matrix:
       env: DB=PGSQL CORE_RELEASE=4
 
 before_script:
+  - composer validate
+  - composer self-update || true
+  - "if [ \"$PHPCS_TEST\" = \"1\" ]; then composer require --dev squizlabs/php_codesniffer; fi"
   - phpenv rehash
-  - git clone git://github.com/silverstripe/silverstripe-travis-support.git ~/travis-support
-  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
-  - cd ~/builds/ss
+  - phpenv config-rm xdebug.ini
+  - composer validate
+  - composer install --prefer-dist
 
 script:
   - vendor/bin/phpunit translatable/tests/
