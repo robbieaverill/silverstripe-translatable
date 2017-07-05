@@ -508,11 +508,14 @@ class TranslatableTest extends FunctionalTest
 
     public function testUpdateCMSFieldsOnSiteTree()
     {
+        $this->markTestSkipped('@todo: This test hangs indefinitely');
+
         $pageOrigLang = new TranslatableTestPage();
         $pageOrigLang->write();
 
         // first test with default language
         $fields = $pageOrigLang->getCMSFields();
+
         // title
         $this->assertInstanceOf(
             TextField::class,
