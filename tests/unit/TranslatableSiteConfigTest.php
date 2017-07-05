@@ -14,7 +14,7 @@ use SilverStripe\Translatable\Model\Translatable;
  */
 class TranslatableSiteConfigTest extends SapphireTest
 {
-    protected static $fixture_file = 'translatable/tests/unit/TranslatableSiteConfigTest.yml';
+    protected static $fixture_file = 'TranslatableSiteConfigTest.yml';
 
     protected static $required_extensions = [
         SiteTree::class => [Translatable::class],

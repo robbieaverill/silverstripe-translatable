@@ -17,7 +17,7 @@ use SilverStripe\Translatable\Model\Translatable;
  */
 class TranslatableSearchFormTest extends FunctionalTest
 {
-    protected static $fixture_file = 'translatable/tests/unit/TranslatableSearchFormTest.yml';
+    protected static $fixture_file = 'TranslatableSearchFormTest.yml';
 
     protected $mockController;
 

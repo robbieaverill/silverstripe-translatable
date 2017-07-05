@@ -38,7 +38,7 @@ use SilverStripe\Versioned\Versioned;
  */
 class TranslatableTest extends FunctionalTest
 {
-    protected static $fixture_file = 'translatable/tests/unit/TranslatableTest.yml';
+    protected static $fixture_file = 'TranslatableTest.yml';
 
     protected static $extra_dataobjects = [
         TranslatableTestDataObject::class,
