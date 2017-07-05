@@ -1,18 +1,18 @@
 ---
 Name: translatable-extensions
 ---
-SiteTree:
+SilverStripe\CMS\Model\SiteTree:
   extensions:
-    - 'Translatable'
-SiteConfig:
+    - SilverStripe\Translatable\Model\Translatable
+SilverStripe\SiteConfig\SiteConfig:
   extensions:
-    - 'Translatable'
-LeftAndMain:
+    - SilverStripe\Translatable\Model\Translatable
+SilverStrip\Admin\LeftAndMain:
   extensions:
-    - 'TranslatableCMSMainExtension'
-HtmlEditorField_Toolbar:
+    - SilverStripe\Translatable\Controller\TranslatableCMSMainExtension
+SilverStripe\Admin\ModelController:
   extensions:
-    - 'TranslatableEditorToolbarExtension'
-DataQuery:
+    - SilverStripe\Translatable\Controller\TranslatableEditorToolbarExtension
+SilverStripe\ORM\DataQuery:
   extensions:
-    - 'Translatable'
+    - SilverStripe\Translatable\Model\Translatable

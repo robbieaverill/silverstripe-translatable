@@ -683,14 +683,14 @@ class Translatable extends DataExtension implements PermissionProvider
         }
         $baseDataTable = DataObject::getSchema()->baseDataTable(get_class($this->owner));
 
-        $fields = array(
+        $fields = [
             'OriginalID' => 'Int',
             'TranslationGroupID' => 'Int',
-        );
-        $indexes = array(
-            'OriginalID' => true,
-            'TranslationGroupID' => true
-        );
+        ];
+        $indexes = [
+            'OriginalID' => ['type' => 'index', 'columns' => ['OriginalID']],
+            'TranslationGroupID' => ['type' => 'index', 'columns' => ['TranslationGroupID']]
+        ];
 
         // Add new tables if required
         DB::get_schema()->requireTable("{$baseDataTable}_translationgroups", $fields, $indexes);

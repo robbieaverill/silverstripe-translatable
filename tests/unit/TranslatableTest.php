@@ -194,7 +194,7 @@ class TranslatableTest extends FunctionalTest
         $translatedPage->copyVersionToStage('Stage', 'Live');
 
         // Need to log out, otherwise pages redirect to CMS views
-        $this->session()->inst_set('loggedInAs', null);
+        $this->session()->set('loggedInAs', null);
 
         $response = $this->get($origPage->URLSegment);
         $this->assertEquals(200, $response->getStatusCode(), 'Page request without Locale GET param doesnt redirect');

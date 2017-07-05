@@ -44,12 +44,13 @@ class TranslatableSearchFormTest extends FunctionalTest
 
     public static function setUpBeforeClass()
     {
+        static::start();
         // HACK Postgres doesn't refresh TSearch indexes when the schema changes after CREATE TABLE
         // MySQL will need a different table type
-        self::kill_temp_db();
+        static::$tempDB->kill();
         FulltextSearchable::enable();
-        self::create_temp_db();
-        self::resetDBSchema(true);
+        static::$tempDB->build();
+        static::resetDBSchema(true, true);
         parent::setUpBeforeClass();
     }
 
