@@ -1208,6 +1208,7 @@ class TranslatableTest extends FunctionalTest
         $adminUser->logIn();
 
         $cmsMain = new CMSPageEditController();
+        $cmsMain->setRequest(Controller::curr()->getRequest());
 
         $origLocale = Translatable::get_current_locale();
         Translatable::set_current_locale('fr_FR');
