@@ -1169,7 +1169,7 @@ class Translatable extends DataExtension implements PermissionProvider
                                         $existingTranslation->CMSEditLink(),
                                         '?Locale=' . $existingTranslation->Locale
                                     ),
-                                    i18n::get_locale_name($existingTranslation->Locale)
+                                    i18n::getData()->localeName($existingTranslation->Locale)
                                 );
                             }
                         }
@@ -1376,7 +1376,6 @@ class Translatable extends DataExtension implements PermissionProvider
         if ($this->owner->hasExtension(Versioned::class)) {
             if ($stage) {
                 Versioned::set_stage($stage);
-                var_dump($stage);
             }
             $translations = Versioned::get_by_stage(
                 $baseDataClass,
@@ -1385,7 +1384,6 @@ class Translatable extends DataExtension implements PermissionProvider
                 null
             )->leftJoin("{$baseDataTable}_translationgroups", $joinOnClause);
             if ($stage) {
-                var_dump($currentStage);
                 Versioned::set_stage($currentStage);
             }
         } else {
@@ -1717,7 +1715,7 @@ class Translatable extends DataExtension implements PermissionProvider
         $permissions = array();
         if ($locales) {
             foreach ($locales as $locale) {
-                $localeName = i18n::get_locale_name($locale);
+                $localeName = i18n::getData()->localeName($locale);
                 $permissions['TRANSLATE_' . $locale] = sprintf(
                     _t(
                         'Translatable.TRANSLATEPERMISSION',
