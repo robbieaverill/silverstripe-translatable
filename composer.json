@@ -18,9 +18,9 @@
         "silverstripe/cms": "4.0.x-dev"
     },
     "require-dev": {
-        "silverstripe/postgresql": "*",
-        "silverstripe/sqlite3": "*",
-        "silverstripe/mssql": "*",
+        "silverstripe/postgresql": "2.0.x-dev",
+        "silverstripe/sqlite3": "2.1.x-dev",
+        "silverstripe/mssql": "2.x-dev",
         "phpunit/phpunit": "^5.7"
     },
     "extra": {
