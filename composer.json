@@ -1,36 +1,32 @@
 {
-	"name":"silverstripe/translatable",
-	"type": "silverstripe-module",
-	"description": "Allows translation of DataObject and SiteTree records into multiple languages ",
-	"keywords": ["silverstripe", "cms", "i18n", "localization", "globalization"],
-	"license": "BSD-3-Clause",
-	"homepage": "https://github.com/silverstripe/silverstripe-translatable/",
-	"authors": [
-		{
-			"name": "Ingo Schommer",
-			"homepage": "http://chillu.com",
-			"email" : "ingo@silverstripe.com"
-		}
-	],
-	"require": {
-		"php": ">=5.6.0",
-		"silverstripe/framework": "~4.0",
-		"silverstripe/cms": "~4.0"
-	},
-	"require-dev": {
-		"silverstripe/postgresql": "*",
-		"silverstripe/sqlite3": "*",
-		"silverstripe/mssql": "*"
-	},
-	"extra": {
-		"screenshots" : ["http://www.silverstripe.org/assets/Uploads/translatable4-small.png"],
-		"branch-alias": {
-			"dev-master": "3.x-dev"
-		}
-	},
-    "autoload": {
-        "psr-4": {
-            "SilverStripe\\Translatable\\": "code/"
+    "name":"silverstripe/translatable",
+    "type": "silverstripe-module",
+    "description": "Allows translation of DataObject and SiteTree records into multiple languages ",
+    "keywords": ["silverstripe", "cms", "i18n", "localization", "globalization"],
+    "license": "BSD-3-Clause",
+    "homepage": "https://github.com/silverstripe/silverstripe-translatable/",
+    "authors": [
+        {
+            "name": "Ingo Schommer",
+            "homepage": "http://chillu.com",
+            "email" : "ingo@silverstripe.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "silverstripe/framework": "4.0.x-dev",
+        "silverstripe/cms": "4.0.x-dev"
+    },
+    "require-dev": {
+        "silverstripe/postgresql": "*",
+        "silverstripe/sqlite3": "*",
+        "silverstripe/mssql": "*",
+        "phpunit/phpunit": "^5.7"
+    },
+    "extra": {
+        "screenshots" : ["http://www.silverstripe.org/assets/Uploads/translatable4-small.png"],
+        "branch-alias": {
+            "dev-master": "3.x-dev"
         }
     },
     "autoload-dev": {
