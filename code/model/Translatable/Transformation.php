@@ -46,7 +46,7 @@ class Transformation extends FormTransformation
     public function transformFormField(FormField $field)
     {
         $newfield = $field->performReadOnlyTransformation();
-        $fn = 'transform' . $field->class;
+        $fn = 'transform' . get_class($field);
         return $this->hasMethod($fn) ? $this->$fn($newfield, $field) : $this->baseTransform($newfield, $field);
     }
 

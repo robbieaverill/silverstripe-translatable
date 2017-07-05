@@ -798,7 +798,7 @@ class Translatable extends DataExtension implements PermissionProvider
             "Added default locale '%s' to table %s",
             "changed",
             Translatable::default_locale(),
-            $this->owner->class
+            get_class($this->owner)
         ));
     }
 
@@ -1389,7 +1389,7 @@ class Translatable extends DataExtension implements PermissionProvider
                 Versioned::set_stage($currentStage);
             }
         } else {
-            $class = $this->owner->class;
+            $class = get_class($this->owner);
             $translations = $baseDataClass::get()
                 ->where($filter)
                 ->leftJoin("{$baseDataTable}_translationgroups", $joinOnClause);

@@ -548,7 +548,7 @@ class TranslatableTest extends FunctionalTest
         );
         $readonlyField = $fields->dataFieldByName('Title')->performReadonlyTransformation();
         $this->assertInstanceOf(
-            $readonlyField->class,
+            get_class($readonlyField),
             $fields->dataFieldByName('Title_original'),
             'Translatable adds the original value as a ReadonlyField in "translation mode"'
         );
