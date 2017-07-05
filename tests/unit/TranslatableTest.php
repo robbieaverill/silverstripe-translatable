@@ -508,8 +508,6 @@ class TranslatableTest extends FunctionalTest
 
     public function testUpdateCMSFieldsOnSiteTree()
     {
-        $this->markTestSkipped('@todo: This test hangs indefinitely');
-
         $pageOrigLang = new TranslatableTestPage();
         $pageOrigLang->write();
 
@@ -1197,8 +1195,6 @@ class TranslatableTest extends FunctionalTest
 
     public function testSavePageInCMS()
     {
-        $this->markTestSkipped('@todo: This test hangs indefinitely.');
-
         $adminUser = $this->objFromFixture(Member::class, 'admin');
         $enPage = $this->objFromFixture(Page::class, 'testpage_en');
 

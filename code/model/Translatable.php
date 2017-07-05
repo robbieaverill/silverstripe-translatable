@@ -14,7 +14,6 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\InlineFormAction;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\i18n\i18n;
@@ -34,6 +33,11 @@ use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Translatable\Forms\LanguageDropdownField;
 use SilverStripe\Translatable\Model\Translatable;
 use SilverStripe\Versioned\Versioned;
+
+
+
+
+use SilverStripe\Translatable\Forms\TemporaryInlineFormAction;
 
 /**
  * The Translatable decorator allows your DataObjects to have versions in different languages,
@@ -1134,12 +1138,11 @@ class Translatable extends DataExtension implements PermissionProvider
             if ($canAddLocale) {
                 // Only add create button if new languages are available
                 $tab->push(
-                    $createButton = InlineFormAction::create(
+                    $createButton = TemporaryInlineFormAction::create(
                         'createtranslation',
                         _t('Translatable.CREATEBUTTON', 'Create')
                     )->addExtraClass('createTranslationButton')
                 );
-                $createButton->includeDefaultJS(false); // not fluent API...
             } else {
                 $tab->removeByName('NewTransLang');
                 $tab->push(new LiteralField(
@@ -1224,7 +1227,7 @@ class Translatable extends DataExtension implements PermissionProvider
 
         // if a language other than default language is used, we're in "translation mode",
         // hence have to modify the original fields
-        $baseClass = $this->owner->class;
+        $baseClass = get_class($this->owner);
         while (($p = get_parent_class($baseClass)) != DataObject::class) {
             $baseClass = $p;
         }
@@ -1373,6 +1376,7 @@ class Translatable extends DataExtension implements PermissionProvider
         if ($this->owner->hasExtension(Versioned::class)) {
             if ($stage) {
                 Versioned::set_stage($stage);
+                var_dump($stage);
             }
             $translations = Versioned::get_by_stage(
                 $baseDataClass,
@@ -1381,6 +1385,7 @@ class Translatable extends DataExtension implements PermissionProvider
                 null
             )->leftJoin("{$baseDataTable}_translationgroups", $joinOnClause);
             if ($stage) {
+                var_dump($currentStage);
                 Versioned::set_stage($currentStage);
             }
         } else {
