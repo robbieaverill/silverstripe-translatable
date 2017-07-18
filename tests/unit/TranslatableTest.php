@@ -328,7 +328,7 @@ class TranslatableTest extends FunctionalTest
         $enST = new SiteTree();
         $enST->Locale = 'en_US';
         $enST->write();
-        $enST->doPublish();
+        $enST->publishRecursive();
 
         // create and publish French and Spanish translations
         $frST = $enST->createTranslation('fr_FR');
@@ -339,7 +339,8 @@ class TranslatableTest extends FunctionalTest
         // change the class name of the default locale's translation (as CMS admin would)
         // and publish the change - we should see both versions of English change class
         $enST->setClassName(Page::class);
-        $enST->doPublish();
+        $enST->write();
+        $enST->publishRecursive();
         $this->assertClass(Page::class, Versioned::get_one_by_stage(SiteTree::class, 'Stage', '"ID" = ' . $enST->ID));
         $this->assertClass(Page::class, Versioned::get_one_by_stage(SiteTree::class, 'Live', '"ID" = ' . $enST->ID));
 
@@ -1079,6 +1080,7 @@ class TranslatableTest extends FunctionalTest
 
     public function testGetTranslationByStage()
     {
+        Versioned::set_stage('Stage');
         $publishedPage = new SiteTree();
         $publishedPage->Locale = 'en_US';
         $publishedPage->Title = 'Published';
