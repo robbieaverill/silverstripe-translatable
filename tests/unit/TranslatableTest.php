@@ -1080,6 +1080,7 @@ class TranslatableTest extends FunctionalTest
 
     public function testGetTranslationByStage()
     {
+        Versioned::set_stage('Stage');
         $publishedPage = new SiteTree();
         $publishedPage->Locale = 'en_US';
         $publishedPage->Title = 'Published';
