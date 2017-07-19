@@ -11,6 +11,8 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Search\FulltextSearchable;
 use SilverStripe\Security\Member;
 use SilverStripe\Translatable\Model\Translatable;
+use SilverStripe\Versioned\Versioned;
+use SilverStripe\Control\HTTPRequest;
 
 /**
  * @package translatable
@@ -70,24 +72,24 @@ class TranslatableSearchFormTest extends FunctionalTest
 
     public function testPublishedPagesMatchedByTitleInDefaultLanguage()
     {
-        $sf = new SearchForm($this->mockController, SearchForm::class);
-
         $publishedPage = $this->objFromFixture(SiteTree::class, 'publishedPage');
-        $publishedPage->copyVersionToStage('Stage', 'Live');
+        $publishedPage->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
+
         $translatedPublishedPage = $publishedPage->createTranslation('de_DE');
         $translatedPublishedPage->Title = 'translatedPublishedPage';
         $translatedPublishedPage->Content = 'German content';
         $translatedPublishedPage->write();
-        $translatedPublishedPage->copyVersionToStage('Stage', 'Live');
+        $publishedPage->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
 
         $this->waitUntilIndexingFinished();
 
-        // Translatable::set_current_locale() can't be used because the context
-        // from the holder is not present here - we set the language explicitly
-        // through a pseudo GET variable in getResults()
-
         $lang = 'en_US';
-        $results = $sf->getResults(null, array('Search' => 'content', 'searchlocale' => $lang));
+        $request = new HTTPRequest('GET', 'search', ['Search'=>'content', 'searchlocale' => $lang]);
+        $request->setSession($this->session());
+        $this->mockController->setRequest($request);
+        $sf = new SearchForm($this->mockController);
+        $results = $sf->getResults();
+
         $this->assertContains(
             $publishedPage->ID,
             $results->column('ID'),
@@ -100,7 +102,12 @@ class TranslatableSearchFormTest extends FunctionalTest
         );
 
         $lang = 'de_DE';
-        $results = $sf->getResults(null, array('Search' => 'content', 'searchlocale' => $lang));
+        $request = new HTTPRequest('GET', 'search', ['Search'=>'content', 'searchlocale' => $lang]);
+        $request->setSession($this->session());
+        $this->mockController->setRequest($request);
+        $sf2 = new SearchForm($this->mockController);
+        $results = $sf2->getResults();
+
         $this->assertNotContains(
             $publishedPage->ID,
             $results->column('ID'),
