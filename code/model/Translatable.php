@@ -1431,13 +1431,14 @@ class Translatable extends DataExtension implements PermissionProvider
      */
     protected function populateSiteConfigDefaults()
     {
+        $table = DataObject::getSchema()->tableName(get_class($this->owner));
 
         // Work-around for population of defaults during database initialisation.
         // When the database is being setup singleton('SiteConfig') is called.
-        if (!DB::get_schema()->hasTable(get_class($this->owner))) {
+        if (!DB::get_schema()->hasTable($table)) {
             return;
         }
-        if (!DB::get_schema()->hasField(get_class($this->owner), 'Locale')) {
+        if (!DB::get_schema()->hasField($table, 'Locale')) {
             return;
         }
         if (DB::get_schema()->isSchemaUpdating()) {

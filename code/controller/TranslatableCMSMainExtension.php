@@ -105,7 +105,7 @@ class TranslatableCMSMainExtension extends Extension
 
         // collect languages for TinyMCE spellchecker plugin.
         // see http://wiki.moxiecode.com/index.php/TinyMCE:Plugins/spellchecker
-        $langName = i18n::get_locale_name($this->owner->Locale);
+        $langName = i18n::getData()->localeName($this->owner->Locale);
         HtmlEditorConfig::get('cms')->setOption(
             'spellchecker_languages',
             "+{$langName}={$this->owner->Locale}"
@@ -221,7 +221,7 @@ class TranslatableCMSMainExtension extends Extension
             // so just show a string displaying current language
             $field = new LiteralField(
                 'Locale',
-                i18n::get_locale_name(Translatable::get_current_locale())
+                i18n::getData()->localeName(Translatable::get_current_locale())
             );
         }
 
